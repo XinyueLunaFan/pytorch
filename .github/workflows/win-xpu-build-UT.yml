@@ -1,40 +1,48 @@
 name: windows-build-xpu
 
 on:
-  push:
-    tags:
-      - ciflow/xpu/*
   workflow_dispatch:
-
-      inputs:
-        win_runner:
-            required: false
-            type: string
-            default: "windows.4xlarge.nonephemeral"
-            description: |
-              Label of the runner this job should run on.
-        s3-bucket:
-            description: S3 bucket to download artifact
-            required: false
-            type: string
-            default: "gha-artifacts" 
+    inputs:
+      win_runner:
+          description: Where to run the GHA job?
+          type: choice
+          options:
+          - "icx-4434"
+          - "142497"
+          - "self-hosted"
+      xpu_commit:
+          description: 'Working commit to pass to xpu.txt'
+          required: true
+          type: string
+      pytorch_commit:
+          description: 'Check out commit of pytorch repo'
+          required: true
+          type: string 
             
 env:
-    home_dir: 'torch_home'
-    conda_env: 'torch_venv'
-    conda_path: 'C:\Jenkins\Miniconda3'
+    home_dir: 'xpu_home'
+    conda_env: 'xpu_venv'
+    conda_path: 'C:\Users\nrvalgo_jenkinsadm\miniforge3'
     python_version: '3.10'
     USE_XPU: 1
-    VS2022INSTALLDIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools'
+    VS2022INSTALLDIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools'
 
 jobs:
   Preparation:
     runs-on: ["${{ inputs.win_runner }}"]
     steps:
-    - name: Checkout PyTorch
-      uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
-          no-sudo: true
+        token: ${{ secrets.WORKFLOW_TOKEN }}
+        ref: main
+        fetch-depth: 0
+        path: ${{ env.home_dir }}//actionrepo
+
+    - name: Install oneAPI bundle
+      shell: cmd
+      run: |
+        call .ci/pytorch/win-test-helpers/installation-helpers/install_oneapi_bundle.bat
 
     - name: Set conda environment
       shell: cmd
@@ -55,17 +63,20 @@ jobs:
      - name: Build Torch
        shell: cmd
        run: |
-         call %conda_path%\Scripts\activate.bat %conda_env%
-         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-         if exist "%home_dir%\pytorch" (
-           rmdir /s /q "%home_dir%\pytorch"
-         )
-         git clone https://github.com/pytorch/pytorch.git %home_dir%\pytorch > git_pytorch_repo_log.txt
-         cd %home_dir%\pytorch
-         call conda install conda-forge::rust -y
-         call conda install typing_extensions -y
-         python -m pip install -r requirements.txt > pip_install_pytorch_requirements_log.txt
-         python setup.py bdist_wheel > build_torch_wheel_log.txt
+        call %conda_path%\Scripts\activate.bat %conda_env%
+        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+        if exist "%home_dir%\pytorch" (
+          rmdir /s /q "%home_dir%\pytorch"
+        )
+        git clone https://github.com/pytorch/pytorch.git %home_dir%\pytorch > git_pytorch_repo_log.txt
+        cd %home_dir%\pytorch
+        git checkout %pytorch_commit%
+        set commit_number_arg=${{ inputs.xpu_commit }}
+        python -c "import os;commit_number = os.getenv('commit_number_arg');f=open('third_party/xpu.txt', 'w');f.write(commit_number);f.close()"
+        call conda install conda-forge::rust -y
+        call conda install typing_extensions -y
+        python -m pip install -r requirements.txt > pip_install_pytorch_requirements_log.txt
+        python setup.py bdist_wheel > build_torch_wheel_log.txt
          
      - name: Build TorchVision
        shell: cmd
@@ -133,20 +144,3 @@ jobs:
           %home_dir%\vision\git_vision_repo_log.txt
           %home_dir%\vision\pip_install_vision_requirements_log.txt
           %home_dir%\vision\build_vision_wheel_log.txt
-
-    - name: Store PyTorch Build Artifacts on S3
-      uses: seemethere/upload-artifact-s3@v5
-      if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build
-      with:
-        name: ${{ inputs.build-environment }}
-        retention-days: 14
-        if-no-files-found: error
-        path: artifacts.zip
-        s3-bucket: ${{ inputs.s3-bucket }}
-          
-    - name: Teardown Windows
-      uses: ./.github/actions/teardown-win
-      if: always()
-      timeout-minutes: 120
-      with:
-          extra-delete-dir: /c/${{ github.run_id }}/build-results/
