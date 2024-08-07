@@ -40,8 +40,9 @@ jobs:
         path: ${{ env.home_dir }}//actionrepo
 
     - name: Install oneAPI bundle
+      shell: cmd
       run: |
-        .ci/pytorch/win-test-helpers/installation-helpers/install_oneapi_bundle.bat
+        call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
     - name: Set conda environment
       shell: cmd
