@@ -43,6 +43,7 @@ jobs:
       shell: cmd
       working-directory: ${{ env.home_dir }}//actionrepo
       run: |
+        git checkout testrun
         dir .ci\pytorch\win-test-helpers\installation-helpers
         call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
