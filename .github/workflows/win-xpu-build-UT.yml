@@ -91,6 +91,7 @@ jobs:
           set "TORCH_WHL=%%f"
           echo "INFO - torch whl found"
           echo %%f
+          echo %home_dir%\pytorch\dist
         )
         if defined TORCH_WHL (
           pip install %TORCH_WHL%
