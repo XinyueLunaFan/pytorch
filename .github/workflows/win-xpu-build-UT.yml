@@ -16,7 +16,7 @@ on:
           type: string
             
 env:
-    home_dir: 'xpu_home'
+    home_dir: '%cd%\xpu_home'
     conda_env: 'xpu_venv'
     conda_path: 'C:\Users\nrvalgo_jenkinsadm\miniforge3'
     python_version: '3.10'
@@ -31,17 +31,16 @@ jobs:
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.WORKFLOW_TOKEN }}
-        ref: main
+        ref: testrun
         fetch-depth: 0
         path: ${{ env.home_dir }}//actionrepo
 
-    # - name: Install oneAPI bundle
-    #   shell: cmd
-    #   working-directory: ${{ env.home_dir }}//actionrepo
-    #   run: |
-    #     git checkout testrun
-    #     dir .ci\pytorch\win-test-helpers\installation-helpers
-    #     call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
+    - name: Install oneAPI bundle
+      shell: cmd
+      working-directory: ${{ env.home_dir }}//actionrepo
+      run: |
+        echo %home_dir%
+        call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
     # - name: Set conda environment
     #   shell: cmd
