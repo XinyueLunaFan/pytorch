@@ -42,6 +42,7 @@ jobs:
     - name: Install oneAPI bundle
       shell: cmd
       run: |
+        dir .ci\pytorch\win-test-helpers\installation-helpers
         call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
     - name: Set conda environment
