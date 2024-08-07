@@ -35,46 +35,46 @@ jobs:
         fetch-depth: 0
         path: ${{ env.home_dir }}//actionrepo
 
-    - name: Install oneAPI bundle
-      shell: cmd
-      working-directory: ${{ env.home_dir }}//actionrepo
-      run: |
-        git checkout testrun
-        dir .ci\pytorch\win-test-helpers\installation-helpers
-        call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
+    # - name: Install oneAPI bundle
+    #   shell: cmd
+    #   working-directory: ${{ env.home_dir }}//actionrepo
+    #   run: |
+    #     git checkout testrun
+    #     dir .ci\pytorch\win-test-helpers\installation-helpers
+    #     call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
-    - name: Set conda environment
-      shell: cmd
-      run: |
-        call %conda_path%\Scripts\activate.bat
-        call conda remove -n %conda_env% --all -y
-        call conda create -n %conda_env% python=%python_version% -y
-        call conda activate %conda_env%
-        call conda install cmake==3.26.4 ninja -y
-        call conda remove ucrt -y
-        call pip install pyyaml
-        call conda list
+    # - name: Set conda environment
+    #   shell: cmd
+    #   run: |
+    #     call %conda_path%\Scripts\activate.bat
+    #     call conda remove -n %conda_env% --all -y
+    #     call conda create -n %conda_env% python=%python_version% -y
+    #     call conda activate %conda_env%
+    #     call conda install cmake==3.26.4 ninja -y
+    #     call conda remove ucrt -y
+    #     call pip install pyyaml
+    #     call conda list
 
   Build-whls:
     runs-on: ["${{ inputs.win_runner }}"]
     needs: [Preparation]
     steps:
-     - name: Build Torch
-       shell: cmd
-       run: |
-        call %conda_path%\Scripts\activate.bat %conda_env%
-        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-        if exist "%home_dir%\pytorch" (
-          rmdir /s /q "%home_dir%\pytorch"
-        )
-        git clone https://github.com/pytorch/pytorch.git %home_dir%\pytorch > git_pytorch_repo_log.txt
-        cd %home_dir%\pytorch
-        set commit_number_arg=${{ inputs.xpu_commit }}
-        python -c "import os;commit_number = os.getenv('commit_number_arg');f=open('third_party/xpu.txt', 'w');f.write(commit_number);f.close()"
-        call conda install conda-forge::rust -y
-        call conda install typing_extensions -y
-        python -m pip install -r requirements.txt > pip_install_pytorch_requirements_log.txt
-        python setup.py bdist_wheel > build_torch_wheel_log.txt
+    #  - name: Build Torch
+    #    shell: cmd
+    #    run: |
+    #     call %conda_path%\Scripts\activate.bat %conda_env%
+    #     call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+    #     if exist "%home_dir%\pytorch" (
+    #       rmdir /s /q "%home_dir%\pytorch"
+    #     )
+    #     git clone https://github.com/pytorch/pytorch.git %home_dir%\pytorch > git_pytorch_repo_log.txt
+    #     cd %home_dir%\pytorch
+    #     set commit_number_arg=${{ inputs.xpu_commit }}
+    #     python -c "import os;commit_number = os.getenv('commit_number_arg');f=open('third_party/xpu.txt', 'w');f.write(commit_number);f.close()"
+    #     call conda install conda-forge::rust -y
+    #     call conda install typing_extensions -y
+    #     python -m pip install -r requirements.txt > pip_install_pytorch_requirements_log.txt
+    #     python setup.py bdist_wheel > build_torch_wheel_log.txt
          
      - name: Build TorchVision
        shell: cmd
@@ -90,6 +90,7 @@ jobs:
         for %%f in (%home_dir%\pytorch\dist\torch-*.whl) do (
           set "TORCH_WHL=%%f"
           echo "INFO - torch whl found"
+          echo %%f
         )
         if defined TORCH_WHL (
           pip install %TORCH_WHL%
