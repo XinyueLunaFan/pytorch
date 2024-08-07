@@ -14,10 +14,6 @@ on:
           description: 'Working commit to pass to xpu.txt'
           required: true
           type: string
-      pytorch_commit:
-          description: 'Check out commit of pytorch repo'
-          required: true
-          type: string 
             
 env:
     home_dir: 'xpu_home'
@@ -73,7 +69,6 @@ jobs:
         )
         git clone https://github.com/pytorch/pytorch.git %home_dir%\pytorch > git_pytorch_repo_log.txt
         cd %home_dir%\pytorch
-        git checkout %pytorch_commit%
         set commit_number_arg=${{ inputs.xpu_commit }}
         python -c "import os;commit_number = os.getenv('commit_number_arg');f=open('third_party/xpu.txt', 'w');f.write(commit_number);f.close()"
         call conda install conda-forge::rust -y
