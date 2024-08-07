@@ -30,7 +30,7 @@ IF EXIST "%ONEAPI_PARENT_DIR%\oneAPI\Installer\installer.exe" (
 
 if "%INSTALL_FRESH_ONEAPI%"=="1" (
     curl -o oneapi_bundle.exe --retry 3 --retry-all-errors -k %INTEL_ONEAPI_PYTORCH_BUNDLE_URL%
-    start /wait "Intel Pytorch Bundle Installer" "oneapi_bundle.exe" --action=install --eula=accept --silent
+    start /wait "Intel Pytorch Bundle Installer" "oneapi_bundle.exe" --action=install --eula=accept --silent > tmp_oneapi_install.log
     if errorlevel 1 exit /b
     if not errorlevel 0 exit /b
 )
