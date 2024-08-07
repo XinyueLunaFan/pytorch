@@ -87,11 +87,10 @@ jobs:
         )
         git clone https://github.com/pytorch/vision.git %home_dir%\vision > git_vision_repo_log.txt
         cd %home_dir%\vision
+        echo %home_dir%\pytorch\dist
         for %%f in (%home_dir%\pytorch\dist\torch-*.whl) do (
           set "TORCH_WHL=%%f"
           echo "INFO - torch whl found"
-          echo %%f
-          echo %home_dir%\pytorch\dist
         )
         if defined TORCH_WHL (
           pip install %TORCH_WHL%
