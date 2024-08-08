@@ -33,10 +33,11 @@ jobs:
         ref: testrun
         fetch-depth: 0
 
-    # - name: Install oneAPI bundle
-    #   shell: cmd
-    #   run: |
-    #     call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
+    - name: Install oneAPI bundle
+      shell: cmd
+      run: |
+        set no_proxy=''
+        call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
 
     - name: Set conda environment
       shell: cmd
