@@ -16,7 +16,7 @@ IF EXIST "%ONEAPI_PARENT_DIR%\oneAPI\Installer\installer.exe" (
     for /f "tokens=1,2" %%a in (tmp_oneapi_uninstall_version.log) do (
         if "%%a"=="%INTEL_ONEAPI_PYTORCH_BUNDLE_DISPLAY_NAME%" (
             echo Version: %%b
-            start /wait "Installer Title" "%ONEAPI_PARENT_DIR%\oneAPI\Installer\installer.exe" --action=remove --eula=accept --silent --product-id %INTEL_ONEAPI_PYTORCH_BUNDLE_DISPLAY_NAME% --product-ver %%b > tmp_oneapi_uninstall.log
+            start /wait "Installer Title" "%ONEAPI_PARENT_DIR%\oneAPI\Installer\installer.exe" --action=remove --eula=accept --silent --product-id %INTEL_ONEAPI_PYTORCH_BUNDLE_DISPLAY_NAME% --product-ver %%b --log uninstall_bundle.txt
         )
     )
 
@@ -30,7 +30,7 @@ IF EXIST "%ONEAPI_PARENT_DIR%\oneAPI\Installer\installer.exe" (
 
 if "%INSTALL_FRESH_ONEAPI%"=="1" (
     curl -o oneapi_bundle.exe --retry 3 --retry-all-errors -k %INTEL_ONEAPI_PYTORCH_BUNDLE_URL%
-    start /wait "Intel Pytorch Bundle Installer" "oneapi_bundle.exe" --action=install --eula=accept --silent
+    start /wait "Intel Pytorch Bundle Installer" "oneapi_bundle.exe" --action=install --eula=accept --silent --log install_bundle.txt
     if errorlevel 1 exit /b
     if not errorlevel 0 exit /b
 )
