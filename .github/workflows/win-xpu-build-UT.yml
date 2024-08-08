@@ -50,7 +50,13 @@ jobs:
         set http_proxy=http://proxy-dmz.intel.com:912
         set https_proxy=http://proxy-dmz.intel.com:912
         set no_proxy=
-        call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
+        if exist "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" (
+          echo "oneAPI bundle already installed"
+        ) else (
+          echo "setvars.bat not found, installing oneAPI bundle"
+          call .ci\pytorch\win-test-helpers\installation-helpers\install_oneapi_bundle.bat
+          echo "oneAPI bundle installed"
+        )      
 
     - name: Set conda environment
       shell: cmd
