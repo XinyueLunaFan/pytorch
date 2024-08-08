@@ -35,7 +35,6 @@ jobs:
 
     - name: Install oneAPI bundle
       shell: cmd
-      if: ${{ inputs.install-bundle }}
       run: |
         set http_proxy=http://proxy-dmz.intel.com:912
         set https_proxy=http://proxy-dmz.intel.com:912
