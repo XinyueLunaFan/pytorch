@@ -20,7 +20,7 @@ env:
     conda_path: 'C:\Users\nrvalgo_jenkinsadm\miniforge3'
     python_version: '3.10'
     USE_XPU: 1
-    VS20219INSTALLDIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools'
+    VS2019INSTALLDIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools'
 
 jobs:
   Preparation:
