@@ -66,11 +66,11 @@ jobs:
         set conda_env=xpu_venv_py${{ matrix.python-version }}
         call %conda_path%\Scripts\activate.bat %conda_env%
         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-        if exist "pytorch" (
-          rmdir /s /q pytorch
+        if exist "pytorch_py${{ matrix.python-version }}" (
+          rmdir /s /q pytorch_py${{ matrix.python-version }}
         )
-        git clone https://github.com/pytorch/pytorch.git pytorch > git_pytorch_repo_log.txt
-        cd pytorch
+        git clone https://github.com/pytorch/pytorch.git pytorch_py${{ matrix.python-version }} > git_pytorch_repo_log.txt
+        cd pytorch_py${{ matrix.python-version }}
         git checkout c8626a4e1f0553c8a9af32515555409d151a00c0
         set commit_number_arg=${{ inputs.xpu_commit }}
         python -c "import os;commit_number = os.getenv('commit_number_arg');f=open('third_party/xpu.txt', 'w');f.write(commit_number);f.close()"
@@ -81,13 +81,16 @@ jobs:
 
   Upload-artifacts:
     runs-on: ["${{ inputs.win_runner }}"]
+    strategy:
+        matrix:
+          python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     needs: [build]
     steps:
     - name: Upload pytorch wheel
       uses: actions/upload-artifact@v2
       with:
         name: pytorch wheel [${{ matrix.python-version }}]
-        path: 'pytorch\dist'
+        path: 'pytorch_py${{ matrix.python-version }}\dist'
 
     - name: Upload logs
       uses: actions/upload-artifact@v2
