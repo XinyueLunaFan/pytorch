@@ -78,7 +78,7 @@ jobs:
         call conda install conda-forge::rust -y
         call conda install typing_extensions -y
         python -m pip install -r requirements.txt > pip_install_pytorch_requirements_log.txt
-        python setup.py bdist_wheel > build_torch_wheel_log.txt
+        python setup.py bdist_wheel > build_torch_wheel_log.txt 2>&1
          
      - name: Build TorchVision
        shell: cmd
