@@ -1,0 +1,36 @@
+# Archive since torchvision and UT is seperate from the main build
+# Archive on Aug 15, 2024
+    - name: Run Unit Tests
+      run: |
+        git clone https://github.com/intel/torch-xpu-ops.git
+        cd torch-xpu-ops/examples
+        pip install pytest expecttest
+        python -m pytest -v | tee "C:\Users\nrvalgo_jenkinsadm\mtl-bundle-uts.log"
+
+
+     - name: Build TorchVision
+       shell: cmd
+       run: |
+        call %conda_path%\Scripts\activate.bat %conda_env%
+        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+        set DISTUTILS_USE_SDK=1
+        if exist "vision" ( 
+          rmdir /s /q "vision"
+        )
+        git clone https://github.com/pytorch/vision.git vision > git_vision_repo_log.txt
+        for %%f in (pytorch\dist\torch-*.whl) do (
+          set "TORCH_WHL=%%f"
+          echo "INFO - torch whl found"
+        )
+        if defined TORCH_WHL (
+          pip install %TORCH_WHL%
+          echo "INFO - torch whl installed"
+        ) else (
+          echo "INFO - No torch whl found."
+          exit /b 1
+        )
+        cd vision
+        pip install -r docs\requirements.txt > pip_install_vision_requirements_log.txt
+        echo "INFO - Building torchvision wheel"
+        python setup.py bdist_wheel > build_vision_wheel_log.txt
+        echo "INFO - torchvision wheel built"
